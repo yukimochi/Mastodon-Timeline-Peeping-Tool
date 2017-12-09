@@ -1,32 +1,88 @@
-﻿<!DOCTYPE html>
-<html>
+﻿<html lang="ja">
+
 <head>
-    <meta charset="utf-8" />
-    <title>Mastodon Timeline Peeping Tool by YUKIMOCHI</title>
-    <link href="Content/bootstrap.min.css" rel="stylesheet" />
-    <link href="Content/bootstrap-theme.min.css" rel="stylesheet" />
-    <script src="Scripts/jquery-3.1.1.min.js"></script>
-    <script src="Scripts/bootstrap.min.js"></script>
-    <script>  (function (i, s, o, g, r, a, m) { i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () { (i[r].q = i[r].q || []).push(arguments) }, i[r].l = 1 * new Date(); a = s.createElement(o), m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m) })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga'); ga('create', 'UA-89989054-3', 'auto'); ga('send', 'pageview');</script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Mastodon Timeline Peeping Tool</title>
+    <link rel="stylesheet" href="./styles/default.css">
+    <link rel="stylesheet" href="./font-awesome-4.7.0/css/font-awesome.min.css">
+    <script src="./Scripts/index.js"></script>
+    <meta name="robots" content="noindex">
 </head>
+
 <body>
-    <h3>Mastodon Timeline Peeping Tool <small>Made by <a href="https://toot.yukimochi.jp/@YUKIMOCHI">YUKIMOCHI</a></small></h3>
-    <p>インスタンスのドメインを入力してください。（秒速20トゥートまで追従します）</p>
-    <input type="text" id="Instance" />
-    <input type="button" id="Stream_Local" value="ストリームを開始する(ローカル)" />
-    <input type="button" id="Stream_Federate" value="ストリームを開始する(連合)" />
-    <input type="button" id="Stream_Stop" value="ストリームを停止する" disabled="disabled" />
-    <br />
-    <table class="table">
-        <tbody id="Mastodon">
-            <tr id="Timeline_head">
-                <td>表示名</td>
-                <td>ユーザ名</td>
-                <td>トゥート</td>
-                <td>投稿日時</td>
-            </tr>
-        </tbody>
-    </table>
-    <script src="Scripts/md_tpt.js"></script>
+    <div class="container">
+        <div class="h-feed">
+            <data class="p-name" value="Mastodon Peeping Tool">
+                <div class="search">
+                    <label>
+                        <span style="display: none;">ドメインを入力してください (例: pawoo.net)</span>
+                        <input type="text" class="search__input" placeholder="ドメインを入力してください (例: pawoo.net)" value="">
+                    </label>
+                    <div role="button" tabindex="0" class="search__icon">
+                        <i class="fa fa-search active"></i>
+                        <i aria-label="検索" class="fa fa-times-circle "></i>
+                    </div>
+                </div>
+                <div class="actions" style="display: none;">
+                    <a class="button start-ltl">ローカルタイムライン</a>
+                    <a class="button start-ftl">連合タイムライン</a>
+                </div>
+                <div class="card h-card p-author instance_thumbnail">
+                    <div class="card__bio">
+                        <h1 class="name">
+                            <span class="p-name emojify instance_name">
+                                インスタンスの名称
+                            </span>
+                            <small>
+                                <span class="instance_domain">ドメイン</span>
+                            </small>
+                        </h1>
+                        <div class="bio">
+                            <div class="account__header__content p-note emojify">
+                                <p class="instance_description">
+                                    インスタンスの説明
+                                </p>
+                            </div>
+                        </div>
+                        <div class="details-counters">
+                            <div class="counter">
+                                <span class="counter-number user-counter">-</span>
+                                <span class="counter-label">ユーザ数</span>
+                            </div>
+                            <div class="counter">
+                                <span class="counter-number toot-counter">-</span>
+                                <span class="counter-label">トゥート数</span>
+                            </div>
+                            <div class="counter">
+                                <span class="counter-number connection-counter">-</span>
+                                <span class="counter-label">接続中</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-stream with-header">
+                    <div class="entry h-entry">
+                    </div>
+                </div>
+            </data>
+        </div>
+    </div>
+    <div class="footer">
+        <span class="domain">
+            <a href="/">Mastodon Timeline Peeping Tool</a>
+        </span>
+        <span class="powered-by">
+            Made by
+            <a href="https://toot.yukimochi.jp/@YUKIMOCHI">@YUKIMOCHI</a>
+        </span>
+    </div>
+
+
+
+
 </body>
+
 </html>
