@@ -2,9 +2,11 @@
 //This software is released under the MIT License.
 //Copyright (c) 2017 YUKIMOCHI Laboratory
 
+ws_connection = null
 last_request = null
 instance = null
-stop = false
+Blocking = false
+federate = null
 
 window.onload = function () {
     var search_box = document.getElementsByClassName("search__input")[0];
@@ -18,20 +20,52 @@ window.onload = function () {
             get_instance(instance, insert_instance);
         }
     })
-    var ltl = document.getElementsByClassName("start-ltl")[0];
-    ltl.addEventListener('click', function (event) {
+    var ws_ltl = document.getElementsByClassName("start-ws-ltl")[0];
+    var ws_ftl = document.getElementsByClassName("start-ws-ftl")[0];
+    ws_ltl.addEventListener('click', function (event) {
         event.preventDefault();
-        instance = search_box['value'];
-        refresh();
-        Interval(3, get_statases, true);
+        if (Blocking != true) {
+            Blocking = true
+            federate = false
+            ws_ltl.setAttribute('style', 'background-color:coral');
+            ws_ftl.setAttribute('style', 'background-color:lightblue');
+            instance = search_box['value']
+            open_ws(instance, federate)
+            get_statases(instance, last_request, !federate, insert_toot)
+            ws_connection.addEventListener('message', function (event) {
+                document.getElementsByClassName("poll-way")[0].textContent = 'Connect with WebSocket'
+                insert_toot(JSON.parse(event.data).payload, true, null);
+            });
+            Interval(3, get_statases, federate);
+        }
     })
-    var ftl = document.getElementsByClassName("start-ftl")[0];
-    ftl.addEventListener('click', function (event) {
+    ws_ftl.addEventListener('click', function (event) {
         event.preventDefault();
-        instance = search_box['value'];
-        refresh();
-        Interval(3, get_statases, false);
+        if (Blocking != true) {
+            Blocking = true
+            federate = true
+            ws_ltl.setAttribute('style', 'background-color:lightblue');
+            ws_ftl.setAttribute('style', 'background-color:coral');
+            instance = search_box['value'];
+            open_ws(instance, federate)
+            get_statases(instance, last_request, !federate, insert_toot)
+            ws_connection.addEventListener('message', function (event) {
+                document.getElementsByClassName("poll-way")[0].textContent = 'Connect with WebSocket'
+                insert_toot(JSON.parse(event.data).payload, true, null);
+            });
+            Interval(3, get_statases, federate);
+        }
     })
+}
+
+function open_ws(instance, federate) {
+    url = 'wss://' + instance + '/api/v1/streaming';
+    if (federate) {
+        url += '?stream=public'
+    } else {
+        url += '?stream=public:local'
+    }
+    ws_connection = new WebSocket(url)
 }
 
 function refresh() {
@@ -44,11 +78,10 @@ function Interval(sec, callback, ltl) {
         clock++;
         if (clock > sec) {
             clock = 0;
-            callback(instance, last_request, ltl, insert_toot);
-        }
-        if (stop) {
-            clearInterval(id);
-            stop = false
+            if (ws_connection.readyState != 1) {
+                document.getElementsByClassName("poll-way")[0].textContent = 'Connect with Polling'
+                callback(instance, last_request, !federate, insert_toot);
+            }
         }
     }, 1000)
 }
@@ -68,8 +101,8 @@ function insert_instance(text, err) {
     }
 }
 
-function insert_toot(text, err) {
-    entrys = processing_entrys(text)
+function insert_toot(text, ws, err) {
+    entrys = processing_entrys(text, ws)
 
     if (entrys != null) {
         entrys.forEach(entry => {
@@ -96,9 +129,9 @@ function get_instance(instance, callback) {
     xhr.send()
 }
 
-function get_statases(instance, since_id, federate, callback) {
+function get_statases(instance, since_id, local, callback) {
     url = 'https://' + instance + '/api/v1/timelines/public';
-    if (federate) {
+    if (local) {
         url += '?local=true'
         if (since_id != null) {
             url += '&since_id=' + since_id;
@@ -111,7 +144,7 @@ function get_statases(instance, since_id, federate, callback) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url);
     xhr.onload = function () {
-        callback(xhr.responseText, null);
+        callback(xhr.responseText, false, null);
     }
     xhr.onerror = function (err) {
         callback(None, err);
@@ -119,31 +152,38 @@ function get_statases(instance, since_id, federate, callback) {
     xhr.send()
 }
 
-function processing_entrys(data) {
-    statuses = JSON.parse(data);
+function processing_entrys(data, ws) {
+    if (ws) {
+        statuses = [JSON.parse(data)];
+    } else {
+        statuses = JSON.parse(data);
+    }
     if (statuses.length > 0) {
         last_request = statuses[0]['id'];
 
         entrys = []
         for (let idx = 0; idx < statuses.length; idx++) {
             const status = statuses[idx];
-            account = status['account'];
-            media_attachments = status['media_attachments'];
+            try {
+                account = status['account'];
+                media_attachments = status['media_attachments'];
+                status__header = html_status__header(status['url'], status['created_at'], account['url'], account['avatar'], account['display_name'], account['acct']);
+                status__content = html_status__content(status['content']);
 
-            status__header = html_status__header(status['url'], status['created_at'], account['url'], account['avatar'], account['display_name'], account['username']);
-            status__content = html_status__content(status['content']);
-
-            md_att = []
-            for (let idx_md_att = 0; idx_md_att < media_attachments.length; idx_md_att++) {
-                const media_attachment = media_attachments[idx_md_att];
-                md_att.push(media_attachment['url']);
+                md_att = []
+                for (let idx_md_att = 0; idx_md_att < media_attachments.length; idx_md_att++) {
+                    const media_attachment = media_attachments[idx_md_att];
+                    md_att.push(media_attachment['url']);
+                }
+                MediaGallery = null
+                if (media_attachments.length > 0) {
+                    MediaGallery = html_MediaGallery(md_att);
+                }
+                entrys.unshift(html_entry(status__header, status__content, MediaGallery));
             }
-            MediaGallery = null
-            if (media_attachments.length > 0) {
-                MediaGallery = html_MediaGallery(md_att);
-            }
+            catch (e) {
 
-            entrys.unshift(html_entry(status__header, status__content, MediaGallery));
+            }
         }
         return entrys;
     } else {
