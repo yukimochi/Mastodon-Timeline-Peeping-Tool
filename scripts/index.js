@@ -2,11 +2,16 @@
 //This software is released under the MIT License.
 //Copyright (c) 2017 YUKIMOCHI Laboratory
 
+urlparam = new Object;
+decodeURIComponent(location.search.substring(1)).split("&").forEach(value =>{
+    var keyvalue = value.split("=");
+    urlparam[keyvalue[0]] = keyvalue[1];
+})
 ws_connection = null;
 last_request = null;
-instance = null;
+instance = urlparam.instance? urlparam.instance : null;
 Blocking = false;
-federate = null;
+federate = urlparam.federate && urlparam.instance? urlparam.federate : null;
 
 window.onload = function () {
     var search_box = document.getElementsByClassName("search__input")[0];
