@@ -10,53 +10,66 @@ federate = null;
 
 window.onload = function () {
     var search_box = document.getElementsByClassName("search__input")[0];
+    if(instance){
+        search_box.value = instance;
+        document.getElementsByClassName("search__input")[0].disabled=true;
+        show_instancepage();
+    }
     search_box.addEventListener('keydown', function (event) {
         if (event.key === 'Enter') {
             event.preventDefault();
-            instance = search_box['value'];
-            var actions = document.getElementsByClassName("actions")[0];
-            actions.setAttribute('style', '');
-            refresh();
-            get_instance(instance, insert_instance);
+            show_instancepage();
         }
     });
     var ws_ltl = document.getElementsByClassName("start-ws-ltl")[0];
     var ws_ftl = document.getElementsByClassName("start-ws-ftl")[0];
     ws_ltl.addEventListener('click', function (event) {
         event.preventDefault();
-        if (Blocking !== true) {
-            Blocking = true;
-            federate = false;
-            ws_ltl.setAttribute('style', 'background-color:coral');
-            ws_ftl.setAttribute('style', 'background-color:lightblue');
-            instance = search_box['value'];
-            open_ws(instance, federate);
-            get_statases(instance, last_request, !federate, insert_toot);
-            ws_connection.addEventListener('message', function (event) {
-                document.getElementsByClassName("poll-way")[0].textContent = 'Connect with WebSocket';
-                insert_toot(JSON.parse(event.data).payload, true, null);
-            });
-            Interval(3, get_statases, federate);
-        }
+        federate = false;
+        show_timeline(false);
     });
     ws_ftl.addEventListener('click', function (event) {
         event.preventDefault();
-        if (Blocking !== true) {
-            Blocking = true;
-            federate = true;
+        federate = true;
+        show_timeline(true);
+    });
+    if(federate !== null){
+        show_timeline(federate);
+    }
+};
+
+function show_instancepage(){
+    var search_box = document.getElementsByClassName("search__input")[0];
+    var actions = document.getElementsByClassName("actions")[0];
+    instance = search_box['value'];
+    actions.setAttribute('style', '');
+    refresh();
+    get_instance(instance, insert_instance);
+}
+
+function show_timeline(bool_ftl){
+    if (Blocking !== true) {
+        Blocking = true;
+        var search_box = document.getElementsByClassName("search__input")[0];
+        var ws_ltl = document.getElementsByClassName("start-ws-ltl")[0];
+        var ws_ftl = document.getElementsByClassName("start-ws-ftl")[0];
+        if(bool_ftl){
             ws_ltl.setAttribute('style', 'background-color:lightblue');
             ws_ftl.setAttribute('style', 'background-color:coral');
-            instance = search_box['value'];
-            open_ws(instance, federate);
-            get_statases(instance, last_request, !federate, insert_toot);
-            ws_connection.addEventListener('message', function (event) {
-                document.getElementsByClassName("poll-way")[0].textContent = 'Connect with WebSocket';
-                insert_toot(JSON.parse(event.data).payload, true, null);
-            });
-            Interval(3, get_statases, federate);
+        }else{
+            ws_ltl.setAttribute('style', 'background-color:coral');
+            ws_ftl.setAttribute('style', 'background-color:lightblue');
         }
-    });
-};
+        instance = search_box['value'];
+        open_ws(instance, federate);
+        get_statases(instance, last_request, !federate, insert_toot);
+        ws_connection.addEventListener('message', function (event) {
+            document.getElementsByClassName("poll-way")[0].textContent = 'Connect with WebSocket';
+            insert_toot(JSON.parse(event.data).payload, true, null);
+        });
+        Interval(3, get_statases, federate);
+    }
+}
 
 function open_ws(instance, federate) {
     url = 'wss://' + instance + '/api/v1/streaming';
