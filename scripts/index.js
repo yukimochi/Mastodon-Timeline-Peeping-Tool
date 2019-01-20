@@ -11,7 +11,8 @@ ws_connection = null;
 last_request = null;
 instance = urlparam.instance? urlparam.instance : null;
 Blocking = false;
-federate = urlparam.federate && urlparam.instance? urlparam.federate : null;
+federate = urlparam.federate && urlparam.instance? (urlparam.federate==="1"?true:false) : null;
+console.log(urlparam.federate);
 
 window.onload = function () {
     var search_box = document.getElementsByClassName("search__input")[0];
@@ -39,6 +40,7 @@ window.onload = function () {
         show_timeline(true);
     });
     if(federate !== null){
+        console.log(federate);
         show_timeline(federate);
     }
 };
@@ -59,9 +61,11 @@ function show_timeline(bool_ftl){
         var ws_ltl = document.getElementsByClassName("start-ws-ltl")[0];
         var ws_ftl = document.getElementsByClassName("start-ws-ftl")[0];
         if(bool_ftl){
+            console.log("FTL open");
             ws_ltl.setAttribute('style', 'background-color:lightblue');
             ws_ftl.setAttribute('style', 'background-color:coral');
         }else{
+            console.log("LTL open");
             ws_ltl.setAttribute('style', 'background-color:coral');
             ws_ftl.setAttribute('style', 'background-color:lightblue');
         }
