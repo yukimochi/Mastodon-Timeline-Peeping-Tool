@@ -18,54 +18,87 @@
                 <div class="search">
                     <label>
                         <span style="display: none;">ドメインを入力してください (例: pawoo.net)</span>
-                        <input type="text" class="search__input" placeholder="ドメインを入力してください (例: pawoo.net)" value="">
+                        <input type="text" id="instance_input" class="search__input" placeholder="ドメインを入力してください (例: pawoo.net)"
+                            value="">
                     </label>
                     <div role="button" tabindex="0" class="search__icon">
                         <i class="fa fa-search active"></i>
                         <i aria-label="検索" class="fa fa-times-circle "></i>
                     </div>
                 </div>
-                <div class="actions" style="display: none;">
-                    <a class="button start-ws-ltl">ローカルタイムライン</a>
-                    <a class="button start-ws-ftl">連合タイムライン</a>
-                    <a class="button poll-way" style="background-color:gray; cursor:default">&lt;- Select timelines</a>
+                <div id="actions" style="display: none;">
+                    <a id="start-ws-ltl" class="button">ローカルタイムライン</a>
+                    <a id="start-ws-ftl" class="button">連合タイムライン</a>
+                    <a id="poll-way" class="button" style="background-color:gray; cursor:default">&lt;- Select timelines</a>
                 </div>
-                <div class="card h-card p-author instance_thumbnail">
+                <div id="instance_thumbnail" class="card h-card p-author">
                     <div class="card__bio">
                         <h1 class="name">
-                            <span class="p-name emojify instance_name">
+                            <span id="instance_name" class="p-name emojify">
                                 インスタンスの名称
                             </span>
                             <small>
-                                <span class="instance_domain">ドメイン</span>
+                                <span id="instance_domain">ドメイン</span>
                             </small>
                         </h1>
                         <div class="bio">
                             <div class="account__header__content p-note emojify">
-                                <p class="instance_description">
+                                <p id="instance_description">
                                     インスタンスの説明
                                 </p>
                             </div>
                         </div>
                         <div class="details-counters">
                             <div class="counter">
-                                <span class="counter-number user-counter">-</span>
+                                <span id="user-counter" class="counter-number">-</span>
                                 <span class="counter-label">ユーザ数</span>
                             </div>
                             <div class="counter">
-                                <span class="counter-number toot-counter">-</span>
+                                <span id="toot-counter" class="counter-number">-</span>
                                 <span class="counter-label">トゥート数</span>
                             </div>
                             <div class="counter">
-                                <span class="counter-number connection-counter">-</span>
+                                <span id="connection-counter" class="counter-number">-</span>
                                 <span class="counter-label">接続中</span>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="activity-stream with-header">
-                    <div class="entry h-entry">
-                    </div>
+                    <template id="html_status__header">
+                        <div class="status__header">
+                            <div class="status__meta">
+                                <a class="status__relative-time u-url u-uid" rel="noopener">
+                                    <time class="time-ago"></time>
+                                </a>
+                            </div>
+                            <a class="status__display-name p-author h-card" rel="noopener">
+                                <div class="status__avatar">
+                                    <div>
+                                        <img width="48" height="48" class="u-photo" />
+                                    </div>
+                                </div>
+                                <span class="display-name">
+                                    <strong class="p-name emojify"></strong>
+                                    <span></span>
+                                </span>
+                            </a>
+                        </div>
+                    </template>
+                    <template id="html_status__content">
+                        <div class="status__content p-name emojify">
+                            <div class="e-content">
+                                <p></p>
+                            </div>
+                        </div>
+                    </template>
+                    <template id="html_media__gallery_item">
+                        <div class="media-gallery__item">
+                            <a class="media-gallery__item-thumbnail" target="_blank">
+                                <img />
+                            </a>
+                        </div>
+                    </template>
                 </div>
             </data>
         </div>
