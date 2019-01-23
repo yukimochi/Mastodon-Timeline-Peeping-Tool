@@ -173,7 +173,7 @@ function processing_entrys(data, ws) {
             try {
                 var account = status['account'];
                 var media_attachments = status['media_attachments'];
-                var status__header = html_status__header(status['url'], status['created_at'], account['url'], account['avatar'], account['display_name'], account['acct']);
+                var status__header = html_status__header(status['url'], new Date(status['created_at']), account['url'], account['avatar'], account['display_name'], account['acct']);
                 var status__content = html_status__content(status['content']);
 
                 var md_att = [];
@@ -215,7 +215,7 @@ function html_entry(status__header, status__content, MediaGallery) {
 function html_status__header(status_url, status_time, author_url, author_avatar_url, author_name, author_id) {
     var t = document.importNode(document.querySelector('#html_status__header').content, true);
     t.querySelector('div.status__header div.status__meta a.status__relative-time.u-url.u-uid').setAttribute('href', status_url);
-    t.querySelector('div.status__header div.status__meta a.status__relative-time.u-url.u-uid time.time-ago').innerText = status_time;
+    t.querySelector('div.status__header div.status__meta a.status__relative-time.u-url.u-uid time.time-ago').innerText = status_time.toLocaleString();
     t.querySelector('div.status__header a.status__display-name.p-author.h-card').setAttribute('href', author_url);
     t.querySelector('div.status__header a.status__display-name.p-author.h-card div.status__avatar div img.u-photo').setAttribute('src', author_avatar_url);
     t.querySelector('div.status__header a.status__display-name.p-author.h-card span.display-name strong.p-name.emojify').innerText = author_name;
