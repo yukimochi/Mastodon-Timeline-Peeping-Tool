@@ -85,9 +85,12 @@ function xhr_loop() {
 
 function insert_instance(text, err) {
     if (err) {
-        // TODO
+        document.getElementById("search__icon").setAttribute('class', 'fa fa-times active');
+        document.getElementById("search__icon").setAttribute('style', 'color: red;');
+        document.getElementById("instance_input").setAttribute('style', 'color: red;');
     } else {
-        document.getElementById("actions").setAttribute('style', '');
+        document.getElementById("search__icon").removeAttribute('class');
+        document.getElementById("actions").removeAttribute('style');
         document.getElementById("instance_input").disabled = true;
         instance = JSON.parse(text);
 
@@ -117,6 +120,10 @@ function insert_toot(text, ws, err) {
 }
 
 function get_instance(callback) {
+    document.getElementById("search__icon").removeAttribute('style');
+    document.getElementById("instance_input").removeAttribute('style');
+    document.getElementById("search__icon").setAttribute('class', 'fa fa-spin fa-spinner active');
+
     var instance = document.getElementById("instance_input")['value'];
     var url = 'https://' + instance + '/api/v1/instance';
 
