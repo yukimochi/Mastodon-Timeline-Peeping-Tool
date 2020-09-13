@@ -49,38 +49,49 @@ function show_timeline(federate) {
         document.getElementById("start-ws-ftl").setAttribute('style', 'background-color:lightblue');
     }
 
-    get_statases(last_request, federate, insert_toot);
     open_connection(federate);
 }
 
 function open_connection(federate) {
     var instance = document.getElementById("instance_input")['value'];
     var url = 'wss://' + instance + '/api/v1/streaming';
+
+    open_traditional_ws(url, federate, open_future_ws);
+}
+
+function open_traditional_ws(url, federate, callback) {
+    var req_url = url;
     if (federate) {
-        url += '?stream=public';
+        req_url += '?stream=public';
     } else {
-        url += '?stream=public:local';
+        req_url += '?stream=public:local';
     }
-    var ws_connection = new WebSocket(url);
+    var ws_connection = new WebSocket(req_url);
     ws_connection.addEventListener('open', function () {
-        document.getElementById("poll-way").textContent = 'Connect with WebSocket';
+        document.getElementById("poll-way").textContent = 'Connect with WebSocket (Traditional)';
     });
     ws_connection.addEventListener('message', function (event) {
         insert_toot(JSON.parse(event.data).payload, true, null);
     });
     ws_connection.addEventListener('close', function (event) {
-        document.getElementById("poll-way").textContent = 'Connect with XHR Polling';
-        setTimeout(function () {
-            xhr_loop();
-        }, 3000);
+        callback(url, federate, null);
     });
 }
 
-function xhr_loop() {
-    get_statases(last_request, federate, insert_toot);
-    setTimeout(function () {
-        xhr_loop();
-    }, 3000);
+function open_future_ws(url, federate, callback) {
+    var req_url = url + "/";
+    var ws_connection = new WebSocket(req_url);
+    ws_connection.addEventListener('open', function () {
+        document.getElementById("poll-way").textContent = 'Connect with WebSocket (Experiment)';
+        ws_connection.send(JSON.stringify({ type: "subscribe", stream: federate ? "public" : "public:local" }));
+    });
+    ws_connection.addEventListener('message', function (event) {
+        insert_toot(JSON.parse(event.data).payload, true, null);
+    });
+    ws_connection.addEventListener('close', function (event) {
+        document.getElementById("poll-way").textContent = 'Connect Failed';
+        callback;
+    });
 }
 
 function insert_instance(text, err) {
@@ -133,31 +144,6 @@ function get_instance(callback) {
         copy = xhr.responseText;
         xhr.abort();
         callback(copy, null);
-    };
-    xhr.onerror = function (err) {
-        callback(null, err);
-    };
-    xhr.send();
-}
-
-function get_statases(since_id, federate, callback) {
-    var instance = document.getElementById("instance_input")['value'];
-    var url = 'https://' + instance + '/api/v1/timelines/public';
-
-    if (!federate) {
-        url += '?local=true';
-        if (since_id !== null) {
-            url += '&since_id=' + since_id;
-        }
-    } else {
-        if (since_id !== null) {
-            url += '?since_id=' + since_id;
-        }
-    }
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
-    xhr.onload = function () {
-        callback(xhr.responseText, false, null);
     };
     xhr.onerror = function (err) {
         callback(null, err);
